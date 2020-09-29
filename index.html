@@ -244,17 +244,15 @@
 
         analyser = new THREE.AudioAnalyser( sound, fft );
         
-        let path = "";
+        let path = "./songs/leave.mp3";
 
         function loadSong(resolve, reject) {
             const audioLoader = new THREE.AudioLoader();
             const audioPath = path;
-            console.log(path);
             audioLoader.load(audioPath, song => resolve(song));
         }
 
         async function play(file) {
-            path = file;
             const song = await new Promise(loadSong);
             sound.setBuffer( song );
             sound.setLoop( true );
@@ -263,8 +261,8 @@
             isPlaying = true;
         }
         
-        var context = new AudioContext();
         document.addEventListener("click", () => {
+            var context = new AudioContext();
             THREE.AudioContext.setContext();
             console.log(THREE.AudioContext.getContext().state)
         });
@@ -276,7 +274,6 @@
             if (sound.isPlaying) {
                 sound.stop();
             }
-            path = file;
             play(event.dataTransfer.files[0].path);
         })
 
@@ -284,7 +281,6 @@
             if (sound.isPlaying) {
                 sound.stop();
             }
-            path = file;
             play(event.target.files[0].path);
         })
 
