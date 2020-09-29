@@ -246,15 +246,15 @@
         
         let path = "./songs/leave.mp3";
 
-        function loadSong(resolve, reject) {
-            const audioLoader = new THREE.AudioLoader();
-            const audioPath = path;
-            console.log(path);
-            audioLoader.load(audioPath, song => resolve(song));
-        }
 
+        function loadSong(url) {
+            return new Promise( resolve => {
+                new THREE.AudioLoader.load(url, resolve);
+            })
+        }
+        
         async function play(file) {
-            const song = await new Promise(loadSong);
+            const song = await new Promise(loadSong(file));
             sound.setBuffer( song );
             sound.setLoop( true );
             sound.setVolume( 0.8 );
@@ -262,41 +262,38 @@
             isPlaying = true;
         }
         
-        document.addEventListener("click", (event) => {
+        document.addEventListener("click", event => {
             event.preventDefault();
             var context = new AudioContext();
             THREE.AudioContext.setContext();
-            console.log(THREE.AudioContext.getContext().state)
         });
 
-        document.addEventListener("dragover", event => event.preventDefault());
+        document.addEventListener("dragover", event => {
+            event.preventDefault()
+        });
 
         document.addEventListener("drop", (event) => {
             event.preventDefault();
-            console.log(event.dataTransfer.files[0]);
-            if (sound.isPlaying) {
-                sound.stop();
-            }
+            sound.stop()
             play(event.dataTransfer.files[0].path);
         })
 
         fileButton.addEventListener("change", event => {
-            if (sound.isPlaying) {
-                sound.stop();
-            }
+            event.preventDefault();
+            sound.stop
             play(event.target.files[0].path);
         })
 
         playButton.addEventListener("click", event => {
             if (!sound.isPlaying) {
-                play("./songs/leave.mp3");
-            } else {
                 sound.play();
             }
         })
 
         pauseButton.addEventListener("click", event => {
-            sound.pause();
+            if (sound.isPlaying) {
+                sound.pause();
+            }
         })
     </script>
     <script>
