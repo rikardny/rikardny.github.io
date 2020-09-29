@@ -243,7 +243,7 @@
         // const audioLoader = new THREE.AudioLoader();
 
         analyser = new THREE.AudioAnalyser( sound, fft );
-        
+        let file;
         
         function loadSong(url) {
             return new Promise( resolve => {
@@ -252,14 +252,13 @@
         }
         
         async function play(url) {
-            loadSong(url).then( songs => {
+            loadSong(url).then( song => {
                 sound.setBuffer( song );
                 sound.setLoop( true );
                 sound.setVolume( 0.8 );
                 sound.play();
                 isPlaying = true;
             })
-            
         }
         
         // document.addEventListener("click", event => {
@@ -278,9 +277,11 @@
             if (sound.isPlaying) {
                 sound.stop()
             }
-            let files = event.target.files || (event.dataTransfer && event.dataTransfer.files);
-            if (files) {
-                play(files[0]);
+            file = event.target.files || (event.dataTransfer && event.dataTransfer.files);
+            if (file) {
+                play(file[0].path);
+            } else {
+                console.log("Something went wrong with file...");
             }
         })
 
