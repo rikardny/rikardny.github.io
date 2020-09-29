@@ -274,6 +274,8 @@
         document.addEventListener("drop", (event) => {
             event.preventDefault();
             const context = new AudioContext;
+            THREE.AudioContext.setContext();
+            console.log(THREE.AudioContext.getContext().state);
             if (sound.isPlaying) {
                 sound.stop()
             }
