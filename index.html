@@ -245,7 +245,9 @@
         analyser = new THREE.AudioAnalyser( sound, fft );
         
         const play = (file) => {
+            console.log(file);
             audioLoader.load(file, buffer => {
+                console.log(buffer);
                 sound.setBuffer( buffer );
                 sound.setLoop( true );
                 sound.setVolume( 0.8 );
@@ -269,6 +271,7 @@
                 sound.stop();
             }
             play(event.dataTransfer.files[0].path);
+            console.log(event.dataTransfer.files[0].path);
         })
 
         fileButton.addEventListener("change", event => {
