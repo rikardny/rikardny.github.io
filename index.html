@@ -240,24 +240,26 @@
         sound.crossOrigin = "anonymous";
 
         // load a sound and set it as the Audio object's buffer
-        const audioLoader = new THREE.AudioLoader();
+        // const audioLoader = new THREE.AudioLoader();
 
         analyser = new THREE.AudioAnalyser( sound, fft );
         
-        const play = (file) => {
-            console.log(file);
-            audioLoader.load(file, buffer => {
-                console.log(buffer);
-                sound.setBuffer( buffer );
-                sound.setLoop( true );
-                sound.setVolume( 0.8 );
-                sound.play();
-            })
+        function loadSong(resolve, reject) {
+            const audioLoader = new THREE.AudioLoader();
+            const audioPath = "songs/leave.mp3";
+            audioLoader.load(audioPath, song => resolve(song));
+        }
+
+        async function play(file) {
+            const song = await new Promise(loadSong);
+            sound.setBuffer( song );
+            sound.setLoop( true );
+            sound.setVolume( 0.8 );
+            sound.play();
             isPlaying = true;
         }
         
         var context = new AudioContext();
-        
         document.addEventListener("click", () => {
             THREE.AudioContext.setContext();
             console.log(THREE.AudioContext.getContext().state)
