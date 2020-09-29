@@ -249,6 +249,7 @@
         function loadSong(resolve, reject) {
             const audioLoader = new THREE.AudioLoader();
             const audioPath = path;
+            console.log(path);
             audioLoader.load(audioPath, song => resolve(song));
         }
 
@@ -261,7 +262,8 @@
             isPlaying = true;
         }
         
-        document.addEventListener("click", () => {
+        document.addEventListener("click", (event) => {
+            event.preventDefault();
             var context = new AudioContext();
             THREE.AudioContext.setContext();
             console.log(THREE.AudioContext.getContext().state)
@@ -271,6 +273,7 @@
 
         document.addEventListener("drop", (event) => {
             event.preventDefault();
+            console.log(event);
             if (sound.isPlaying) {
                 sound.stop();
             }
@@ -287,8 +290,9 @@
         playButton.addEventListener("click", event => {
             if (!sound.isPlaying) {
                 play("./songs/leave.mp3");
+            } else {
+                sound.play();
             }
-            sound.play();
         })
 
         pauseButton.addEventListener("click", event => {
