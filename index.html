@@ -244,38 +244,44 @@
 
         analyser = new THREE.AudioAnalyser( sound, fft );
         
-        let path = "./songs/leave.mp3";
-
-
+        
         function loadSong(url) {
             return new Promise( resolve => {
-                new THREE.AudioLoader.load(url, resolve);
+                new THREE.AudioLoader().load(url, resolve);
             })
         }
         
-        async function play(file) {
-            const song = await new Promise(loadSong(file));
-            sound.setBuffer( song );
-            sound.setLoop( true );
-            sound.setVolume( 0.8 );
-            sound.play();
-            isPlaying = true;
+        async function play(url) {
+            loadSong(url).then( songs => {
+                sound.setBuffer( song );
+                sound.setLoop( true );
+                sound.setVolume( 0.8 );
+                sound.play();
+                isPlaying = true;
+            })
+            
         }
         
-        document.addEventListener("click", event => {
-            event.preventDefault();
-            var context = new AudioContext();
-            THREE.AudioContext.setContext();
-        });
-
+        // document.addEventListener("click", event => {
+            //     event.preventDefault();
+            //     var context = new AudioContext();
+            //     THREE.AudioContext.setContext();
+            // });
+            
         document.addEventListener("dragover", event => {
             event.preventDefault()
         });
-
+            
         document.addEventListener("drop", (event) => {
             event.preventDefault();
-            sound.stop()
-            play(event.dataTransfer.files[0].path);
+            const context = new AudioContext;
+            if (sound.isPlaying) {
+                sound.stop()
+            }
+            let files = event.target.files || (event.dataTransfer && event.dataTransfer.files);
+            if (files) {
+                play(files[0]);
+            }
         })
 
         fileButton.addEventListener("change", event => {
