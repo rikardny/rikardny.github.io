@@ -34,7 +34,253 @@
       <a id="pause" class="waves-effect btn-flat">Pause</a>
     </div>
     <div id="webglviewer" class="fullscreen"></div>
-    <script src="visual.js"></script>
-    <script src="audio.js"></script>
+    <script>
+        const addLine = (y, data) => {
+            points[y] = [];
+            for (let i = 0; i <= elements; i++) {
+                points[y].push(new THREE.Vector3(i * h - width / 2, y / res, data ? data[i] : 0));
+            };
+        }
+        const addVerts = (y) => {
+            for (let i = 0; i < points[y].length - 1; i++) {
+                let v1 = points[y][i];
+                let v2 = points[y + 1][i];
+                let v3 = points[y][i + 1];
+                let v4 = points[y + 1][i + 1];
+                geo[y].vertices.push(v1);
+                geo[y].vertices.push(v2);
+                geo[y].vertices.push(v3);
+                geo[y].vertices.push(v4);
+            }
+        }
+        const addFaces = (y) => {
+            for (let i = 0; i < points[0].length - 1; i++) {
+                let n = 4 * i;
+                geo[y].faces.push(new THREE.Face3(n, n + 3, n + 1));
+                geo[y].faces.push(new THREE.Face3(n, n + 2, n + 3));
+            }
+        }
+        const getData = () => {
+            let data;
+            try {
+                data = Array.from(analyser.getFrequencyData());
+            } catch (error) {
+                data = [];
+            }
+            let reduced = Array((elements+1)/2).fill(0);
+            for (let i = 0; i < data.length; i++) {
+                index = Math.floor(i/(data.length/((elements+1)/2)));
+                reduced[index] += data[i];
+            }
+            reduced = reduced.concat(reduced.slice().reverse());   
+            reduced = reduced.map(x => Math.pow(0.01*elements/fft*x,2))
+            return reduced;
+        }
+        const newSpeed = (speed) => {
+            let data = 0;
+            try {
+                data = analyser.getAverageFrequency();
+            } catch (error) {
+            }
+            let update = 0.2*Math.pow(data/20,3);
+            update = update > 15 ? 15 : update;
+            return 1 < data ? update : speed;
+        }
+        const newLight = () => {
+            let data;
+            try {
+                data = Array.from(analyser.getFrequencyData());
+            } catch (error) {
+                data = [];
+            }
+            let level = 0;
+            if (data[0] >= 250) {
+                level = 10000000;
+            } else {
+                level = mean(data.slice(0,20))-120;
+            }
+            return level;
+
+        }
+        const newBackground = () => {
+            let data = 0;
+            try {
+                data = analyser.getAverageFrequency();
+            } catch (error) {
+            }
+            let update = 0.2*Math.pow(data/20,3);
+            update = update > 25 ? 25 : update;
+            let s = (25-update)/150;
+            let color = new THREE.Color(0,0,s);
+            return color;
+        }
+        const mean = arr => arr.reduce((a,b) => a + b, 0) / arr.length
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(
+            90, window.innerWidth/window.innerHeight, 0.1, 10 
+        )
+        const fft = 1024;
+        const width = 8;
+        const elements = 31;
+        const h = width/elements;
+        const res = 8;
+
+        // Camera:
+        let height = 0.2;
+        camera.position.set(0, 0, height);
+        camera.rotateX(0.4*Math.PI);
+
+        // Renderer
+        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xffffff);
+        document.getElementById("webglviewer").appendChild(renderer.domElement);
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight)
+        })
+
+
+        // Models:
+        let geo = [];
+        let mat = new THREE.MeshPhongMaterial( {
+            color: 0xffffff, 
+            wireframe: true,
+            vertexColors: THREE.VertexColors,
+        });
+
+        let points = [];
+        let models = [];
+        addLine(0);
+
+        // Lighting
+        let light = new THREE.PointLight( 0xffffff );
+        let ambient = new THREE.AmbientLight( 0xffffff, 0.00 );
+        scene.add(ambient);
+        scene.add(light);
+
+        let origSpeed = 0.1;
+        let speed = origSpeed;
+        let v = 60/speed;
+        isPlaying = false;
+
+        let i = 1;
+        let a = 0
+        var render = () => {
+            requestAnimationFrame(render);
+            speed = newSpeed(origSpeed);
+            v = 60/speed;
+            
+            c = Math.cos(0.003*i*Math.PI);
+
+            let diff = camera.position.y- models.length/res + 9.5;
+            for (let i = 0; i < diff; i++) {
+                let y = models.length;
+                geo[y] = new THREE.Geometry();
+                addLine(y+1, getData());
+                addVerts(y);
+                addFaces(y);
+            
+                r = 1 - c;
+                b = Math.abs(-1 - c);
+                
+                geo[y].faces.forEach(f => {
+                    let color = new THREE.Color(Math.random()*r, 0, Math.random()*b);
+                    f.color.set(color);
+                });
+                geo[y].computeFlatVertexNormals();
+                models[y] = new THREE.Mesh( geo[y], mat );
+                scene.add(models[y]);
+            }
+            
+            light.position.x = width*0.5*Math.cos(0.025*i*Math.PI);
+            light.position.y = camera.position.y+2;
+            light.position.z = 5;
+            light.power = newLight();
+            
+            if (isPlaying) {
+                value = Math.tanh(0.01*a);
+                camera.position.z = 2.8*value+0.2;
+                rgb = new THREE.Color( 1-value, 1-value, 1-value );
+                if (value < 0.95) {
+                    renderer.setClearColor( rgb );
+                } else {
+                    renderer.setClearColor(newBackground());
+                }
+                a += 1;
+            }
+
+            camera.position.y += 1/v;
+            
+            try {
+                camera.fov = 90 - 0.15*analyser.getAverageFrequency();
+            } catch (error) {
+            }
+            camera.updateProjectionMatrix()
+
+            i += 1;
+            renderer.render(scene, camera);
+        }
+
+        render();
+    </script>
+    <script>
+        const fileButton = document.getElementById("file");
+        const playButton = document.getElementById("play");
+        const pauseButton = document.getElementById("pause");
+
+        // create an AudioListener and add it to the camera
+        const listener = new THREE.AudioListener();
+        camera.add(listener)
+
+        // create a global audio source
+        const audio = document.getElementById("audio");
+        const sound = new THREE.Audio( listener );
+
+        // load a sound and set it as the Audio object's buffer
+        const audioLoader = new THREE.AudioLoader();
+
+        analyser = new THREE.AudioAnalyser( sound, fft );
+
+        const play = (file) => {
+            audioLoader.load(file, buffer => {
+                sound.setBuffer( buffer );
+                sound.setLoop( true );
+                sound.setVolume( 0.8 );
+                sound.play();
+            })
+            isPlaying = true;
+        }
+
+        document.addEventListener("dragover", event => event.preventDefault());
+
+        document.addEventListener("drop", (event) => {
+            event.preventDefault();
+            if (sound.isPlaying) {
+                sound.stop();
+            }
+            play(event.dataTransfer.files[0].path);
+        })
+
+        fileButton.addEventListener("change", event => {
+            if (sound.isPlaying) {
+                sound.stop();
+            }
+            play(event.target.files[0].path);
+        })
+
+        playButton.addEventListener("click", event => {
+            play("$curr/songs/leave.mp3");
+            sound.play();
+        })
+
+        pauseButton.addEventListener("click", event => {
+            sound.pause();
+        })
+    </script>
+    <script>
+    </script>
 </body>
 </html>
