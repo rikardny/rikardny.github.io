@@ -249,6 +249,7 @@
         function loadSong(resolve, reject) {
             const audioLoader = new THREE.AudioLoader();
             const audioPath = path;
+            console.log(path);
             audioLoader.load(audioPath, song => resolve(song));
         }
 
@@ -275,6 +276,7 @@
             if (sound.isPlaying) {
                 sound.stop();
             }
+            path = file;
             play(event.dataTransfer.files[0].path);
         })
 
@@ -282,6 +284,7 @@
             if (sound.isPlaying) {
                 sound.stop();
             }
+            path = file;
             play(event.target.files[0].path);
         })
 
