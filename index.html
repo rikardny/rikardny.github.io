@@ -273,7 +273,7 @@
 
         document.addEventListener("drop", (event) => {
             event.preventDefault();
-            console.log(event);
+            console.log(event.dataTransfer.files[0]);
             if (sound.isPlaying) {
                 sound.stop();
             }
