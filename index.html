@@ -253,6 +253,7 @@
         }
 
         async function play(file) {
+            path = file;
             const song = await new Promise(loadSong);
             sound.setBuffer( song );
             sound.setLoop( true );
