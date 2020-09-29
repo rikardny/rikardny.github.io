@@ -236,14 +236,14 @@
         camera.add(listener)
 
         // create a global audio source
-        const audio = document.getElementById("audio");
         const sound = new THREE.Audio( listener );
+        sound.crossOrigin = "anonymous";
 
         // load a sound and set it as the Audio object's buffer
         const audioLoader = new THREE.AudioLoader();
 
         analyser = new THREE.AudioAnalyser( sound, fft );
-
+        
         const play = (file) => {
             audioLoader.load(file, buffer => {
                 sound.setBuffer( buffer );
@@ -253,6 +253,13 @@
             })
             isPlaying = true;
         }
+        
+        var context = new AudioContext();
+        
+        document.addEventListener("click", () => {
+            THREE.AudioContext.setContext();
+            console.log(THREE.AudioContext.getContext().state)
+        });
 
         document.addEventListener("dragover", event => event.preventDefault());
 
