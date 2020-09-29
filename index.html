@@ -245,37 +245,41 @@
         analyser = new THREE.AudioAnalyser( sound, fft );
         let file;
         
-        function loadSong(url) {
-            return new Promise( resolve => {
-                new THREE.AudioLoader().load(url, resolve);
-            })
-        }
+        // function loadSong(url) {
+        //     return new Promise( resolve => {
+        //         new THREE.AudioLoader().load(url, resolve);
+        //     })
+        // }
         
-        async function play(url) {
-            loadSong(url).then( song => {
-                sound.setBuffer( song );
+        // async function play(url) {
+        //     loadSong(url).then( song => {
+        //         sound.setBuffer( song );
+        //         sound.setLoop( true );
+        //         sound.setVolume( 0.8 );
+        //         sound.play();
+        //         isPlaying = true;
+        //     })
+        // }
+
+        const play = file => {
+            new THREE.AudioLoader().load(file, buffer => {
+                sound.setBuffer( buffer );
                 sound.setLoop( true );
                 sound.setVolume( 0.8 );
                 sound.play();
-                isPlaying = true;
             })
+            isPlaying = true;
         }
-        
-        // document.addEventListener("click", event => {
-            //     event.preventDefault();
-            //     var context = new AudioContext();
-            //     THREE.AudioContext.setContext();
-            // });
-            
+
         document.addEventListener("dragover", event => {
-            event.preventDefault()
-        });
-            
-        document.addEventListener("drop", (event) => {
             event.preventDefault();
             const context = new AudioContext;
             THREE.AudioContext.setContext();
             console.log(THREE.AudioContext.getContext().state);
+        });
+            
+        document.addEventListener("drop", (event) => {
+            event.preventDefault();
             if (sound.isPlaying) {
                 sound.stop()
             }
