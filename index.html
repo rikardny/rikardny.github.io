@@ -246,8 +246,9 @@
         }
 
         playButton.addEventListener("click", e => {
-            AudioContext.resume();
             e.preventDefault();
+            THREE.AudioContext.setContext()
+            console.log(THREE.AudioContext.getContext().state);
             let file = "./songs/leave.mp3";
             if (!audio.isPlaying) {
                 audio.play();
