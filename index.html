@@ -231,35 +231,9 @@
         const playButton = document.getElementById("play");
         const pauseButton = document.getElementById("pause");
 
-        // create an AudioListener and add it to the camera
         const listener = new THREE.AudioListener();
+        const audio = new THREE.Audio( listener );
         camera.add(listener)
-
-        // create a global audio source
-        const sound = new THREE.Audio( listener );
-        sound.crossOrigin = "anonymous";
-
-        // load a sound and set it as the Audio object's buffer
-        // const audioLoader = new THREE.AudioLoader();
-
-        analyser = new THREE.AudioAnalyser( sound, fft );
-        let file;
-        
-        // function loadSong(url) {
-        //     return new Promise( resolve => {
-        //         new THREE.AudioLoader().load(url, resolve);
-        //     })
-        // }
-        
-        // async function play(url) {
-        //     loadSong(url).then( song => {
-        //         sound.setBuffer( song );
-        //         sound.setLoop( true );
-        //         sound.setVolume( 0.8 );
-        //         sound.play();
-        //         isPlaying = true;
-        //     })
-        // }
 
         const play = file => {
             new THREE.AudioLoader().load(file, buffer => {
@@ -267,47 +241,28 @@
                 sound.setLoop( true );
                 sound.setVolume( 0.8 );
                 sound.play();
-            })
+            });
             isPlaying = true;
         }
 
-        document.addEventListener("dragover", event => {
-            event.preventDefault();
-            const context = new AudioContext;
-            THREE.AudioContext.setContext();
-            console.log(THREE.AudioContext.getContext().state);
-        });
-            
-        document.addEventListener("drop", (event) => {
-            event.preventDefault();
-            if (sound.isPlaying) {
-                sound.stop()
-            }
-            file = event.target.files || (event.dataTransfer && event.dataTransfer.files);
-            if (file) {
-                play(file[0].path);
-            } else {
-                console.log("Something went wrong with file...");
-            }
-        })
-
-        fileButton.addEventListener("change", event => {
-            event.preventDefault();
-            sound.stop
-            play(event.target.files[0].path);
-        })
-
-        playButton.addEventListener("click", event => {
+        playButton.addEventListener("click", e => {
+            e.preventDefault();
+            let file = "./songs/leave.mp3";
             if (!sound.isPlaying) {
                 sound.play();
+            } else {
+                play(file);
             }
         })
 
-        pauseButton.addEventListener("click", event => {
+        pauseButton.addEventListener("click", e => {
+            e.preventDefault();
             if (sound.isPlaying) {
                 sound.pause();
             }
         })
+        
+        
     </script>
     <script>
     </script>
