@@ -26,12 +26,8 @@
 </head>
 <body>
     <div class="file-field">
-      <div class="waves-effect btn-flat">
-        <span>File</span>
-        <input type="file" id="file">
-      </div>
       <a id="play" class="waves-effect btn-flat">Play</a>
-      <a id="pause" class="waves-effect btn-flat">Pause</a>
+      <a id="pause" class=waves-effect btn-flat">Pause</a>
     </div>
     <div id="webglviewer" class="fullscreen"></div>
     <script>
@@ -227,7 +223,6 @@
         render();
     </script>
     <script>
-        const fileButton = document.getElementById("file");
         const playButton = document.getElementById("play");
         const pauseButton = document.getElementById("pause");
 
@@ -254,14 +249,21 @@
         })
 
         playButton.addEventListener("click", e => {
-            play("./songs/leave.mp3");
+            e.preventDefault();
+            if (!audio.isPlaying) {
+                play("./songs/Electric\ Swing\ Circus\ -\ Bella\ Belle\ \(Keizan\ remix\).mp3");
+            }
         })
-        
+
         pauseButton.addEventListener("click", e => {
-            audio.pause();
+            e.preventDefault();
+            if (audio.isPlaying) {
+                audio.pause();
+            }
         })
         
-        
+
+
     </script>
     <script>
     </script>
