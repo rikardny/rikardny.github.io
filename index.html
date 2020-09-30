@@ -234,7 +234,7 @@
         const listener = new THREE.AudioListener();
         const audio = new THREE.Audio( listener );
         const audioLoader = new THREE.AudioLoader();
-        const analyser = new THREE.AudioAnalyser( sound, fft );
+        const analyser = new THREE.AudioAnalyser( audio, fft );
         camera.add(listener)
 
         const play = file => {
