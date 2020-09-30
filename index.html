@@ -246,6 +246,7 @@
         }
 
         playButton.addEventListener("click", e => {
+            AudioContext.resume();
             e.preventDefault();
             let file = "./songs/leave.mp3";
             if (!audio.isPlaying) {
