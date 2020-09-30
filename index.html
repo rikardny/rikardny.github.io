@@ -238,7 +238,7 @@
 
         const play = file => {
             console.log(file);
-            audioLoader.load("./songs/leave.mp3", buffer => {
+            audioLoader.load( file, buffer => {
                 audio.setBuffer( buffer );
                 audio.setLoop( true );
                 audio.setVolume( 0.8 );
@@ -246,24 +246,18 @@
             });
             isPlaying = true;
         }
-        
+
+        document.addEventListener("click", () => {
+            THREE.AudioContext.setContext();
+            console.log(THREE.AudioContext.getContext().state);
+        })
+
         playButton.addEventListener("click", e => {
-            e.preventDefault();
-            let file = "./songs/leave.mp3";
-            if (!audio.isPlaying) {
-                audio.play();
-            } else {
-                play(file);
-            }
+            play("./songs/leave.mp3");
         })
         
         pauseButton.addEventListener("click", e => {
-            e.preventDefault();
-            THREE.AudioContext.setContext()
-            console.log(THREE.AudioContext.getContext().state);
-            if (audio.isPlaying) {
-                audio.pause();
-            }
+            audio.pause();
         })
         
         
